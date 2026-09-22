@@ -56,8 +56,9 @@ calendrier français. L'interface et le calendrier généré sont en français.
 4. Lancez **Extensions → Rendu → Publical — Calendrier semestriel (FR)**
    (« Render » si Inkscape est en anglais).
 
-Testé avec Inkscape 1.x. La disposition « deux pages » demande Inkscape 1.2
-ou plus ; en deçà, utilisez l'option « deux calques ».
+Testé dans l'application Inkscape avec les versions 1.4.3 et 1.4.4. La
+disposition « deux pages » demande Inkscape 1.2 ou plus ; en deçà, utilisez
+l'option « deux calques ».
 
 ## Utilisation en ligne de commande
 
