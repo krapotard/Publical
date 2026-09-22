@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# Fichiers générés par le script (calendriers de test)
+calendrier_*_S1.svg
+calendrier_*_S2.svg
+
+# Fichiers système
+.DS_Store
+Thumbs.db

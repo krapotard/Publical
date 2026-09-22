@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publical — Dates importantes du calendrier</title>
+<style>
+  :root {
+    --fond: #e9edf3;
+    --surface: #ffffff;
+    --encre: #1e2937;
+    --discret: #5a6879;
+    --filet: #d2d9e3;
+    --accent: #23479a;
+    --erreur: #b3261e;
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: light; }
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--encre);
+    font: 15px/1.45 var(--sans);
+  }
+  h1, h2, h3, p { margin: 0; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .page { max-width: 1240px; margin: 0 auto; padding: 28px 24px 56px; }
+  .entete { max-width: 46rem; margin-bottom: 24px; }
+  .entete h1 { font: 700 1.75rem/1.2 var(--serif); letter-spacing: -0.01em; }
+  .entete p { color: var(--discret); margin-top: 6px; }
+
+  .colonnes { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr); gap: 28px; align-items: start; }
+
+  /* ---------- Éditeur ---------- */
+  #editeur { display: grid; gap: 18px; }
+  .cat {
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    border-left: 10px solid var(--c);
+    border-radius: 3px 10px 10px 3px;
+  }
+  .cat > header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 7.6rem auto;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 12px 14px;
+    background: color-mix(in srgb, var(--c) 9%, #fff);
+    border-bottom: 1px solid var(--filet);
+  }
+  .cat.plat { --c: #8794a5; border-left-style: dashed; }
+  .cat.plat > header { grid-template-columns: minmax(0, 1fr) auto; }
+  .hex { font: 0.9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-transform: lowercase; }
+  input.hex.err { border-color: var(--erreur); background: #fdf1f0; }
+  .plat-titre { font-weight: 600; }
+  .plat-aide { color: var(--discret); font-size: 0.875rem; }
+
+  input[type="color"] {
+    inline-size: 2.5rem; block-size: 2.5rem; padding: 0; border: 0; background: none; cursor: pointer;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(0, 0, 0, .18); border-radius: 50%; }
+  input[type="color"]::-moz-color-swatch { border: 2px solid rgba(0, 0, 0, .18); border-radius: 50%; }
+
+  .nom {
+    font: 700 1.15rem/1.3 var(--serif);
+    border: 1px solid transparent; border-radius: 4px; background: transparent;
+    padding: 5px 8px; min-width: 0;
+  }
+  .nom:hover { border-color: var(--filet); background: #fff; }
+  .nom:focus { border-color: var(--accent); background: #fff; }
+  .nom::placeholder { color: var(--discret); font-weight: 400; font-style: italic; }
+
+  .outils { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .lien {
+    border: 0; background: none; padding: 6px 8px; border-radius: 4px; cursor: pointer;
+    color: var(--accent); text-decoration: underline; text-underline-offset: 3px;
+  }
+  .lien:hover { background: rgba(35, 71, 154, .08); }
+  .lien.danger { color: var(--erreur); }
+  .lien.danger:hover { background: rgba(179, 38, 30, .08); }
+
+  .lignes { padding: 6px 14px 4px; }
+  .ligne {
+    display: grid;
+    grid-template-columns: 9.8rem 12.5rem minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #eef1f5;
+  }
+  .ligne:last-child { border-bottom: 0; }
+  .ligne .msg { grid-column: 1 / -1; }
+  .annuel { display: flex; gap: 6px; }
+  .annuel .jour { inline-size: 4rem; }
+
+  input[type="text"], input[type="number"], input[type="date"], select {
+    border: 1px solid var(--filet); border-radius: 5px; background: #fff;
+    padding: 6px 8px; min-width: 0; inline-size: 100%;
+  }
+  .annuel select { flex: 1; }
+  input:hover, select:hover { border-color: #b3bdcb; }
+  input:focus, select:focus { border-color: var(--accent); }
+  .ligne.err input, .ligne.err select { border-color: var(--erreur); }
+
+  .icone {
+    inline-size: 2.2rem; block-size: 2.2rem; border: 0; border-radius: 5px; background: none;
+    font-size: 1.4rem; line-height: 1; color: var(--discret); cursor: pointer;
+  }
+  .icone:hover { background: rgba(179, 38, 30, .1); color: var(--erreur); }
+
+  .msg { color: var(--erreur); font-size: 0.875rem; }
+  .msg[hidden] { display: none; }
+
+  .ajout {
+    display: block; margin: 4px 14px 12px; padding: 7px 12px; cursor: pointer;
+    border: 1px dashed #aab5c4; border-radius: 6px; background: none; color: var(--encre);
+  }
+  .ajout:hover { border-color: var(--accent); color: var(--accent); }
+
+  .nouvelle-cat {
+    justify-self: start; padding: 10px 16px; cursor: pointer; font-weight: 600;
+    border: 2px solid var(--encre); border-radius: 8px; background: transparent;
+  }
+  .nouvelle-cat:hover { background: var(--encre); color: #fff; }
+
+  .vide {
+    background: var(--surface); border: 1px dashed #aab5c4; border-radius: 10px; padding: 26px 24px;
+  }
+  .vide h2 { font: 700 1.2rem/1.3 var(--serif); }
+  .vide p { color: var(--discret); margin-top: 6px; max-width: 38rem; }
+  .vide .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* ---------- Panneau de droite ---------- */
+  .panneau { position: sticky; top: 16px; display: grid; gap: 14px; }
+  .barre { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 9px 14px; border-radius: 8px; border: 1px solid var(--encre); background: #fff; cursor: pointer; font-weight: 600;
+  }
+  .btn:hover { background: #f3f5f9; }
+  .btn.primaire { background: var(--encre); color: #fff; }
+  .btn.primaire:hover { background: #2f3f52; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn:disabled:hover { background: #fff; }
+  .btn.primaire:disabled:hover { background: var(--encre); }
+
+  .etat { font-size: 0.9rem; color: var(--discret); min-height: 1.4em; }
+  .etat.ok { color: #1c6b36; }
+  .etat.ko { color: var(--erreur); font-weight: 600; }
+  .etat ul { margin: 6px 0 0; padding-left: 1.2rem; font-weight: 400; }
+
+  .vue { background: var(--surface); border: 1px solid var(--filet); border-radius: 10px; overflow: hidden; }
+  .onglets { display: flex; align-items: center; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--filet); background: #f6f8fb; }
+  .onglets button {
+    padding: 8px 12px; border: 0; background: none; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; color: var(--discret);
+  }
+  .onglets button[aria-selected="true"] { color: var(--encre); border-bottom-color: var(--encre); }
+  .onglets .annee { margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--discret); font-size: 0.875rem; padding-bottom: 4px; }
+  .onglets .annee input { inline-size: 5rem; padding: 4px 6px; }
+
+  .corps { padding: 14px; max-height: 68vh; overflow: auto; }
+  pre { margin: 0; font: 0.8125rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+
+  .legende { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 12px; font-size: 0.875rem; }
+  .legende span { display: inline-flex; align-items: center; gap: 6px; }
+  .legende i { inline-size: 0.8rem; block-size: 0.8rem; border-radius: 2px; background: var(--c); border: 1px solid rgba(0,0,0,.25); }
+  .mois h3 { font: 700 1rem/1.3 var(--serif); margin: 14px 0 6px; padding-bottom: 3px; border-bottom: 2px solid var(--encre); }
+  .mois:first-of-type h3 { margin-top: 0; }
+  .jour-ligne {
+    display: grid; grid-template-columns: 1.6rem 2rem minmax(0, 1fr); align-items: center;
+    padding: 3px 8px; background: var(--c, #fff); color: var(--t, var(--encre)); border-bottom: 1px solid rgba(0, 0, 0, .12);
+    font-size: 0.9rem;
+  }
+  .jour-ligne .l { font-weight: 400; }
+  .jour-ligne .n { font-weight: 700; text-align: right; padding-right: 10px; }
+  .jour-ligne .t { font-weight: 700; }
+  .jour-ligne.plat { background: #f1f3f7; --t: var(--encre); }
+  .jour-ligne.plat .t { font-weight: 400; }
+  .note { color: var(--discret); font-size: 0.85rem; margin-top: 10px; }
+  .aide { color: var(--discret); font-size: 0.85rem; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--encre); color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+  }
+  #toast.visible { opacity: 1; }
+  body.glisse::after {
+    content: "Déposez le fichier JSON pour le charger";
+    position: fixed; inset: 12px; display: grid; place-items: center;
+    border: 3px dashed var(--accent); border-radius: 14px; background: rgba(233, 237, 243, .92);
+    font: 700 1.3rem var(--serif); color: var(--accent); z-index: 10;
+  }
+
+  @media (max-width: 920px) {
+    .colonnes { grid-template-columns: 1fr; }
+    .panneau { position: static; }
+    .cat > header { grid-template-columns: auto minmax(0, 1fr); }
+    .cat > header .hex { grid-column: 1 / -1; }
+    .cat > header .outils { grid-column: 1 / -1; justify-content: flex-start; }
+    .ligne { grid-template-columns: 1fr 1fr; }
+    .ligne .txt { grid-column: 1 / -1; grid-row: 3; }
+    .ligne .icone { grid-column: 2; grid-row: 1; justify-self: end; }
+    .ligne .annuel, .ligne .date { grid-column: 1 / -1; grid-row: 2; }
+    .ligne .mode { grid-column: 1; grid-row: 1; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    #toast { transition: opacity .2s; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="entete">
+    <h1>Dates importantes du calendrier</h1>
+    <p>Éditeur du fichier de dates importantes pour <strong>Publical</strong>, l'extension Inkscape de calendrier semestriel. Regroupez vos dates par catégorie, donnez une couleur à chaque catégorie, puis enregistrez le fichier JSON à charger dans l'extension (onglet Contenu, champ «&nbsp;Fichier d'événements&nbsp;»).</p>
+  </div>
+
+  <div class="colonnes">
+    <main>
+      <div id="editeur" aria-live="off"></div>
+    </main>
+
+    <aside class="panneau" aria-label="Fichier et aperçu">
+      <div class="barre">
+        <button class="btn primaire" id="btn-enregistrer">Enregistrer le JSON</button>
+        <button class="btn" id="btn-copier">Copier</button>
+        <button class="btn" id="btn-ouvrir">Ouvrir un fichier…</button>
+        <button class="btn" id="btn-nouveau">Nouveau</button>
+        <input type="file" id="fichier" accept=".json,application/json" hidden>
+      </div>
+      <div class="etat" id="etat" role="status"></div>
+
+      <div class="vue">
+        <div class="onglets" role="tablist">
+          <button role="tab" id="onglet-cal" aria-selected="true" aria-controls="corps">Aperçu calendrier</button>
+          <button role="tab" id="onglet-json" aria-selected="false" aria-controls="corps">JSON</button>
+          <label class="annee" id="zone-annee">Année <input type="number" id="annee" min="1900" max="2200" aria-label="Année de l'aperçu"></label>
+        </div>
+        <div class="corps" id="corps" role="tabpanel"></div>
+      </div>
+      <p class="aide">Le brouillon est conservé dans ce navigateur. Vous pouvez aussi glisser un fichier JSON sur cette page pour le modifier.</p>
+    </aside>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const PALETTE = ["#7b3fa0", "#c8102e", "#1f7a8c", "#e07b00", "#2e7d32", "#b5179e", "#4361ee", "#8d6e63"];
+  const NOMMEES = { rouge: "#c8102e", bleu: "#1f3a5f", vert: "#2e7d32", orange: "#e07b00", violet: "#6a1b9a", gris: "#555555", noir: "#111111" };
+  const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const JOURS_MAX = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const INITIALES = ["D", "L", "M", "M", "J", "V", "S"];   // Date.getDay() : 0 = dimanche
+  const CLE_STOCKAGE = "calendrier_evenements_brouillon_v1";
+
+  const EXEMPLE = [
+    { nom: "Association / syndicat", couleur: "#1f7a8c", lignes: [
+      ["once", "2027-03-21", "FormaSection Montpellier"], ["once", "2027-06-23", "Assemblée Générale"] ] },
+    { nom: "Féminisme", couleur: "#7b3fa0", lignes: [
+      ["yearly", "03-08", "Lutte pour les droits des femmes"], ["once", "2027-11-10", "Jour de l'inégalité salariale (2026)"] ] },
+    { nom: "Militantisme", couleur: "#c8102e", lignes: [
+      ["yearly", "03-28", "Proclamation de la Commune de Paris"] ] }
+  ];
+
+  let compteur = 0;
+  const uid = () => "i" + (++compteur);
+  const $ = (sel, racine = document) => racine.querySelector(sel);
+  const $$ = (sel, racine = document) => Array.from(racine.querySelectorAll(sel));
+  const pad = n => String(n).padStart(2, "0");
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function anneeParDefaut() {
+    const d = new Date();
+    return d.getFullYear() + (d.getMonth() >= 8 ? 1 : 0);
+  }
+
+  let etat = { categories: [], plat: [], annee: anneeParDefaut(), vue: "cal" };
+
+  /* ---------- Lignes : conversion date <-> clé JSON ---------- */
+  function nouvelleLigne(mode = "once", texte = "") {
+    return { id: uid(), mode, date: "", jour: 1, mois: 1, texte };
+  }
+  function ligneDepuisCle(cle, texte) {
+    let m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cle);
+    if (m) return Object.assign(nouvelleLigne("once", texte), { date: cle });
+    m = /^(\d{2})-(\d{2})$/.exec(cle);
+    if (m) return Object.assign(nouvelleLigne("yearly", texte), { mois: +m[1], jour: +m[2] });
+    return null;
+  }
+  function dateExiste(a, m, j) {
+    const d = new Date(a, m - 1, j);
+    return d.getFullYear() === a && d.getMonth() === m - 1 && d.getDate() === j;
+  }
+  function cleLigne(l) {
+    if (l.mode === "once") {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(l.date || "");
+      return m && dateExiste(+m[1], +m[2], +m[3]) ? l.date : null;
+    }
+    const jour = Math.trunc(+l.jour), mois = Math.trunc(+l.mois);
+    return mois >= 1 && mois <= 12 && jour >= 1 && jour <= JOURS_MAX[mois - 1] ? pad(mois) + "-" + pad(jour) : null;
+  }
+  const ligneVide = l => l.mode === "once" && !l.date && !l.texte.trim();   // ligne ajoutée mais pas encore remplie
+  function cleTri(cle) {           // jour de l'année d'abord, puis année
+    const p = cle.split("-");
+    return p.length === 3 ? p[1] + p[2] + p[0] : p[0] + p[1] + "0000";
+  }
+
+  /* ---------- Couleurs ---------- */
+  function analyserCouleur(v) {
+    const s = String(v).trim().toLowerCase();
+    if (NOMMEES[s]) return NOMMEES[s];
+    const m = /^#?([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(s);
+    if (!m) return null;
+    let c = m[1];
+    if (c.length === 3) c = c.split("").map(x => x + x).join("");
+    return "#" + c.slice(0, 6);           // 8 chiffres : la transparence est ignorée
+  }
+  function contraste(hex) {        // même règle que le script Python
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return 0.299 * r + 0.587 * g + 0.114 * b < 150 ? "#ffffff" : "#111111";
+  }
+  function couleurLibre() {
+    const prises = new Set(etat.categories.map(c => c.couleur.toLowerCase()));
+    return PALETTE.find(c => !prises.has(c)) || PALETTE[etat.categories.length % PALETTE.length];
+  }
+
+  /* ---------- Validation et construction du JSON ---------- */
+  function valider() {
+    const erreurs = [], parId = new Map();
+    const signaler = (id, msg, global) => { if (!parId.has(id)) parId.set(id, msg); if (global) erreurs.push(global); };
+    const noms = new Map();
+    etat.categories.forEach(c => {
+      const nom = c.nom.trim();
+      if (!nom) signaler(c.id, "Donnez un nom à cette catégorie.", "Une catégorie n'a pas de nom.");
+      else {
+        const k = nom.toLowerCase();
+        if (noms.has(k)) signaler(c.id, "Ce nom est déjà utilisé par une autre catégorie.", `Deux catégories portent le nom « ${nom} ».`);
+        noms.set(k, true);
+      }
+    });
+    const verifierLignes = (lignes, etiquette) => {
+      const vues = new Map();
+      lignes.forEach(l => {
+        if (ligneVide(l)) return;
+        const cle = cleLigne(l);
+        if (!cle) {
+          if (l.mode === "once") signaler(l.id, "Choisissez une date valide.", `${etiquette} : une date est manquante ou invalide.`);
+          else signaler(l.id, `Le ${l.jour} ${MOIS[(+l.mois || 1) - 1]} n'existe pas.`, `${etiquette} : une date annuelle est invalide.`);
+          return;
+        }
+        if (vues.has(cle)) {
+          signaler(l.id, "Cette date figure déjà dans la catégorie : regroupez les libellés sur une seule ligne.", `${etiquette} : la date ${cle} est en double.`);
+          signaler(vues.get(cle), "Cette date figure deux fois dans la catégorie.");
+        } else vues.set(cle, l.id);
+      });
+    };
+    etat.categories.forEach(c => verifierLignes(c.lignes, `« ${c.nom.trim() || "sans nom"} »`));
+    verifierLignes(etat.plat, "Sans catégorie");
+    return { erreurs: Array.from(new Set(erreurs)), parId };
+  }
+
+  function construire() {
+    const sortie = {};
+    const trier = paires => paires.sort((a, b) => cleTri(a[0]).localeCompare(cleTri(b[0])));
+    etat.categories.forEach(c => {
+      const nom = c.nom.trim();
+      if (!nom || nom in sortie) return;
+      const dates = {};
+      trier(c.lignes.map(l => [cleLigne(l), l.texte.trim()]).filter(p => p[0])).forEach(([k, t]) => { if (!(k in dates)) dates[k] = t; });
+      sortie[nom] = { couleur: c.couleur.toLowerCase(), dates };
+    });
+    trier(etat.plat.map(l => [cleLigne(l), l.texte.trim()]).filter(p => p[0])).forEach(([k, t]) => { if (!(k in sortie)) sortie[k] = t; });
+    return sortie;
+  }
+
+  /* ---------- Import ---------- */
+  function importer(texte) {
+    let data;
+    try { data = JSON.parse(texte); } catch (e) { throw new Error("Ce fichier n'est pas un JSON valide (" + e.message + ")."); }
+    if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Le fichier doit contenir un objet JSON { … }.");
+    const categories = [], plat = [], avertissements = [];
+    for (const [nom, valeur] of Object.entries(data)) {
+      if (typeof valeur === "string") {
+        const l = ligneDepuisCle(nom, valeur);
+        if (!l) throw new Error(`La date « ${nom} » est invalide (format AAAA-MM-JJ ou MM-JJ).`);
+        plat.push(l);
+        continue;
+      }
+      let couleur = null;
+      const lignes = [];
+      const ajouter = (cle, t) => {
+        if (typeof t !== "string") throw new Error(`Catégorie « ${nom} » : le libellé de « ${cle} » doit être du texte.`);
+        const l = ligneDepuisCle(cle, t);
+        if (!l) throw new Error(`Catégorie « ${nom} » : la date « ${cle} » est invalide (format AAAA-MM-JJ ou MM-JJ).`);
+        lignes.push(l);
+      };
+      for (const bloc of Array.isArray(valeur) ? valeur : [valeur]) {
+        if (!bloc || typeof bloc !== "object" || Array.isArray(bloc)) throw new Error(`Catégorie « ${nom} » : un objet { date: texte } est attendu.`);
+        for (const [k, v] of Object.entries(bloc)) {
+          const kl = k.toLowerCase();
+          if (kl === "couleur" || kl === "color") {
+            couleur = analyserCouleur(v);
+            if (!couleur) avertissements.push(`Couleur « ${v} » non reconnue pour « ${nom} » : une couleur a été attribuée.`);
+          } else if (kl === "dates") {
+            if (!v || typeof v !== "object" || Array.isArray(v)) throw new Error(`Catégorie « ${nom} » : « dates » doit être un objet { date: texte }.`);
+            Object.entries(v).forEach(([c, t]) => ajouter(c, t));
+          } else ajouter(k, v);
+        }
+      }
+      categories.push({ id: uid(), nom, couleur: couleur || PALETTE[categories.length % PALETTE.length], lignes });
+    }
+    return { categories, plat, avertissements };
+  }
+
+  /* ---------- Rendu de l'éditeur ---------- */
+  function htmlLigne(l) {
+    const date = l.mode === "once"
+      ? `<input type="date" class="date" value="${esc(l.date)}" min="1900-01-01" max="2200-12-31" aria-label="Date">`
+      : `<span class="annuel"><input type="number" class="jour" min="1" max="31" value="${esc(l.jour)}" aria-label="Jour du mois">` +
+        `<select class="mois" aria-label="Mois">${MOIS.map((m, i) => `<option value="${i + 1}"${+l.mois === i + 1 ? " selected" : ""}>${m}</option>`).join("")}</select></span>`;
+    return `<div class="ligne" data-lid="${l.id}">
+      <select class="mode" aria-label="Fréquence"><option value="once"${l.mode === "once" ? " selected" : ""}>Une fois</option><option value="yearly"${l.mode === "yearly" ? " selected" : ""}>Chaque année</option></select>
+      ${date}
+      <input type="text" class="txt" value="${esc(l.texte)}" placeholder="Libellé, ex. Assemblée générale" aria-label="Libellé">
+      <button class="icone" data-act="suppr-ligne" aria-label="Supprimer cette date" title="Supprimer cette date">×</button>
+      <p class="msg" role="alert" hidden></p>
+    </div>`;
+  }
+  function htmlCategorie(c) {
+    return `<section class="cat" data-cid="${c.id}" style="--c:${esc(c.couleur)}">
+      <header>
+        <input type="color" class="couleur" value="${esc(c.couleur)}" aria-label="Couleur de la catégorie">
+        <input type="text" class="nom" value="${esc(c.nom)}" placeholder="Nom de la catégorie, ex. Association" aria-label="Nom de la catégorie">
+        <input type="text" class="hex" value="${esc(c.couleur)}" maxlength="9" spellcheck="false" autocomplete="off" placeholder="#7b3fa0" aria-label="Couleur en hexadécimal" title="Code couleur hexadécimal, ex. #7b3fa0">
+        <div class="outils"><button class="lien" data-act="trier">Trier par date</button><button class="lien danger" data-act="suppr-cat">Supprimer</button></div>
+        <p class="msg" role="alert" hidden style="grid-column:1/-1"></p>
+      </header>
+      <div class="lignes">${c.lignes.map(htmlLigne).join("")}</div>
+      <button class="ajout" data-act="ajout-ligne">Ajouter une date</button>
+    </section>`;
+  }
+  function htmlPlat() {
+    return `<section class="cat plat" data-plat="1">
+      <header>
+        <div><p class="plat-titre">Sans catégorie</p><p class="plat-aide">Ces dates s'affichent en texte simple, sans couleur.</p></div>
+        <div class="outils"><button class="lien" data-act="trier">Trier par date</button><button class="lien danger" data-act="suppr-cat">Supprimer</button></div>
+      </header>
+      <div class="lignes">${etat.plat.map(htmlLigne).join("")}</div>
+      <button class="ajout" data-act="ajout-ligne">Ajouter une date</button>
+    </section>`;
+  }
+  function rendreEditeur() {
+    const zone = $("#editeur");
+    if (!etat.categories.length && !etat.plat.length) {
+      zone.innerHTML = `<div class="vide">
+        <h2>Aucune date pour l'instant</h2>
+        <p>Créez une catégorie (par exemple «&nbsp;Association&nbsp;» ou «&nbsp;Formations&nbsp;»), choisissez sa couleur, puis ajoutez ses dates. Vous pouvez aussi ouvrir un fichier JSON existant.</p>
+        <div class="actions"><button class="btn primaire" data-act="ajout-cat">Créer une catégorie</button><button class="btn" data-act="exemple">Voir un exemple</button></div>
+      </div>`;
+    } else {
+      zone.innerHTML = etat.categories.map(htmlCategorie).join("") + (etat.plat.length ? htmlPlat() : "") +
+        `<button class="nouvelle-cat" data-act="ajout-cat">Ajouter une catégorie</button>`;
+    }
+    majDerive();
+  }
+
+  /* ---------- Éléments dérivés : erreurs, JSON, aperçu ---------- */
+  function majDerive() {
+    const v = valider();
+    $$(".cat").forEach(sec => {
+      const cid = sec.dataset.cid;
+      const m = $("header .msg", sec);
+      if (m) { const t = parId(v, cid); m.textContent = t || ""; m.hidden = !t; }
+    });
+    $$(".ligne").forEach(el => {
+      const t = parId(v, el.dataset.lid);
+      el.classList.toggle("err", !!t);
+      const m = $(".msg", el);
+      m.textContent = t || ""; m.hidden = !t;
+    });
+
+    const json = JSON.stringify(construire(), null, 2);
+    const nbCat = etat.categories.length;
+    const nbDates = etat.categories.reduce((n, c) => n + c.lignes.filter(l => cleLigne(l)).length, 0) + etat.plat.filter(l => cleLigne(l)).length;
+    const vide = !nbDates;
+    const zoneEtat = $("#etat");
+    if (v.erreurs.length) {
+      zoneEtat.className = "etat ko";
+      zoneEtat.innerHTML = `${v.erreurs.length} point${v.erreurs.length > 1 ? "s" : ""} à corriger avant d'enregistrer :<ul>${v.erreurs.map(e => `<li>${esc(e)}</li>`).join("")}</ul>`;
+    } else if (vide) {
+      zoneEtat.className = "etat"; zoneEtat.textContent = "Ajoutez au moins une date pour pouvoir enregistrer.";
+    } else {
+      zoneEtat.className = "etat ok";
+      zoneEtat.textContent = `Prêt à enregistrer : ${nbCat} catégorie${nbCat > 1 ? "s" : ""}, ${nbDates} date${nbDates > 1 ? "s" : ""}.`;
+    }
+    const bloque = v.erreurs.length > 0 || vide;
+    $("#btn-enregistrer").disabled = bloque;
+    $("#btn-copier").disabled = bloque;
+    majVue(json);
+    sauverBrouillon();
+  }
+  const parId = (v, id) => v.parId.get(id);
+
+  function majVue(json) {
+    const cal = etat.vue === "cal";
+    $("#onglet-cal").setAttribute("aria-selected", cal);
+    $("#onglet-json").setAttribute("aria-selected", !cal);
+    $("#zone-annee").style.display = cal ? "" : "none";
+    $("#annee").value = etat.annee;
+    const corps = $("#corps");
+    corps.setAttribute("aria-labelledby", cal ? "onglet-cal" : "onglet-json");
+    corps.innerHTML = cal ? htmlApercu() : `<pre>${esc(json)}</pre>`;
+  }
+
+  function htmlApercu() {
+    const an = etat.annee;
+    const evenements = [];
+    let ailleurs = 0, absents = 0;
+    const ajouterLigne = (l, couleur, nom, ordre) => {
+      const cle = cleLigne(l);
+      if (!cle) return;
+      let d;
+      if (l.mode === "once") {
+        const [a, m, j] = cle.split("-").map(Number);
+        if (a !== an) { ailleurs++; return; }
+        d = new Date(a, m - 1, j);
+      } else {
+        const [m, j] = cle.split("-").map(Number);
+        d = new Date(an, m - 1, j);
+        if (d.getMonth() !== m - 1) { absents++; return; }     // 29 février une année non bissextile
+      }
+      evenements.push({ d, texte: l.texte.trim(), couleur, nom, ordre });
+    };
+    etat.categories.forEach((c, i) => c.lignes.forEach(l => ajouterLigne(l, c.couleur, c.nom.trim() || "Sans nom", i)));
+    etat.plat.forEach(l => ajouterLigne(l, null, "", 999));
+    if (!evenements.length && !ailleurs && !absents && !etat.categories.length && !etat.plat.length)
+      return `<p class="aide">L'aperçu montre vos dates comme des lignes du calendrier, année par année.</p>`;
+    evenements.sort((a, b) => a.d - b.d || a.ordre - b.ordre);
+
+    let html = "";
+    const cats = etat.categories.filter(c => c.nom.trim());
+    if (cats.length) html += `<div class="legende">${cats.map(c => `<span style="--c:${esc(c.couleur)}"><i></i>${esc(c.nom.trim())}</span>`).join("")}</div>`;
+    let mois = -1;
+    evenements.forEach(e => {
+      if (e.d.getMonth() !== mois) {
+        if (mois !== -1) html += "</section>";
+        mois = e.d.getMonth();
+        html += `<section class="mois"><h3>${MOIS[mois][0].toUpperCase() + MOIS[mois].slice(1)} ${an}</h3>`;
+      }
+      const style = e.couleur ? ` style="--c:${esc(e.couleur)};--t:${contraste(e.couleur)}"` : "";
+      html += `<div class="jour-ligne${e.couleur ? "" : " plat"}"${style} title="${esc(e.nom)}"><span class="l">${INITIALES[e.d.getDay()]}</span><span class="n">${e.d.getDate()}</span><span class="t">${esc(e.texte) || "&nbsp;"}</span></div>`;
+    });
+    if (mois !== -1) html += "</section>";
+    if (!evenements.length) html += `<p class="aide">Aucune date en ${an}.</p>`;
+    const notes = [];
+    if (ailleurs) notes.push(`${ailleurs} date${ailleurs > 1 ? "s" : ""} ponctuelle${ailleurs > 1 ? "s" : ""} d'une autre année ne figure${ailleurs > 1 ? "nt" : ""} pas ici.`);
+    if (absents) notes.push(`${absents} date${absents > 1 ? "s" : ""} annuelle${absents > 1 ? "s" : ""} (29 février) n'existe${absents > 1 ? "nt" : ""} pas en ${an}.`);
+    return html + notes.map(n => `<p class="note">${n}</p>`).join("");
+  }
+
+  /* ---------- Brouillon ---------- */
+  let minuteur = null;
+  function sauverBrouillon() {
+    clearTimeout(minuteur);
+    minuteur = setTimeout(() => {
+      try { localStorage.setItem(CLE_STOCKAGE, JSON.stringify({ categories: etat.categories, plat: etat.plat, annee: etat.annee })); } catch (e) { /* stockage indisponible */ }
+    }, 300);
+  }
+  function chargerBrouillon() {
+    try {
+      const brut = localStorage.getItem(CLE_STOCKAGE);
+      if (!brut) return;
+      const d = JSON.parse(brut);
+      const relire = l => Object.assign(nouvelleLigne(), l, { id: uid() });
+      etat.categories = (d.categories || []).map(c => ({ id: uid(), nom: String(c.nom || ""), couleur: analyserCouleur(c.couleur) || PALETTE[0], lignes: (c.lignes || []).map(relire) }));
+      etat.plat = (d.plat || []).map(relire);
+      if (d.annee) etat.annee = +d.annee;
+    } catch (e) { /* brouillon illisible : on repart de zéro */ }
+  }
+
+  /* ---------- Actions ---------- */
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg; t.classList.add("visible");
+    clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("visible"), 2600);
+  }
+  function chargerExemple() {
+    etat.categories = EXEMPLE.map(c => ({ id: uid(), nom: c.nom, couleur: c.couleur, lignes: c.lignes.map(([m, cle, t]) => ligneDepuisCle(cle, t)) }));
+    etat.plat = [];
+    etat.annee = 2027;
+    rendreEditeur();
+  }
+  function lireFichier(fichier) {
+    if (!fichier) return;
+    const lecteur = new FileReader();
+    lecteur.onload = () => {
+      try {
+        const r = importer(String(lecteur.result));
+        etat.categories = r.categories; etat.plat = r.plat;
+        rendreEditeur();
+        const n = r.categories.reduce((s, c) => s + c.lignes.length, 0) + r.plat.length;
+        toast(`Fichier ouvert : ${r.categories.length} catégorie${r.categories.length > 1 ? "s" : ""}, ${n} date${n > 1 ? "s" : ""}.` + (r.avertissements.length ? " " + r.avertissements[0] : ""));
+      } catch (e) { alert(e.message); }
+    };
+    lecteur.onerror = () => alert("Impossible de lire ce fichier.");
+    lecteur.readAsText(fichier, "utf-8");
+  }
+  function jsonCourant() { return JSON.stringify(construire(), null, 2) + "\n"; }
+  function enregistrer() {
+    const blob = new Blob([jsonCourant()], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "evenements.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast("Enregistré : evenements.json");
+  }
+  async function copier() {
+    const texte = jsonCourant();
+    try { await navigator.clipboard.writeText(texte); }
+    catch (e) {
+      const t = document.createElement("textarea");
+      t.value = texte; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); } finally { t.remove(); }
+    }
+    toast("JSON copié");
+  }
+
+  function trouver(el) {
+    const sec = el.closest(".cat");
+    if (!sec) return {};
+    const liste = sec.dataset.plat ? etat.plat : (etat.categories.find(c => c.id === sec.dataset.cid) || {}).lignes;
+    const cat = sec.dataset.plat ? null : etat.categories.find(c => c.id === sec.dataset.cid);
+    const ligEl = el.closest(".ligne");
+    return { sec, cat, liste, ligne: ligEl && liste ? liste.find(l => l.id === ligEl.dataset.lid) : null, ligEl };
+  }
+  function focaliser(id) {
+    const el = $(`[data-lid="${id}"] .date, [data-lid="${id}"] .jour`);
+    if (el) el.focus();
+  }
+
+  $("#editeur").addEventListener("click", e => {
+    const b = e.target.closest("[data-act]");
+    if (!b) return;
+    const act = b.dataset.act;
+    const { cat, liste, ligne } = trouver(b);
+    if (act === "ajout-cat") {
+      const c = { id: uid(), nom: "", couleur: couleurLibre(), lignes: [nouvelleLigne()] };
+      etat.categories.push(c); rendreEditeur();
+      $(`[data-cid="${c.id}"] .nom`).focus();
+    } else if (act === "exemple") chargerExemple();
+    else if (act === "ajout-ligne" && liste) {
+      const l = nouvelleLigne(); liste.push(l); rendreEditeur(); focaliser(l.id);
+    } else if (act === "suppr-ligne" && liste && ligne) {
+      liste.splice(liste.indexOf(ligne), 1);
+      rendreEditeur();
+    } else if (act === "suppr-cat") {
+      const n = liste ? liste.length : 0;
+      const nom = cat ? (cat.nom.trim() || "sans nom") : "Sans catégorie";
+      if (n && !confirm(`Supprimer « ${nom} » et ses ${n} date${n > 1 ? "s" : ""} ?`)) return;
+      if (cat) etat.categories.splice(etat.categories.indexOf(cat), 1); else etat.plat = [];
+      rendreEditeur();
+    } else if (act === "trier" && liste) {
+      liste.sort((a, b) => (cleTri(cleLigne(a) || "99-99")).localeCompare(cleTri(cleLigne(b) || "99-99")));
+      rendreEditeur();
+    }
+  });
+
+  $("#editeur").addEventListener("input", e => {
+    const t = e.target;
+    const { sec, cat, ligne } = trouver(t);
+    if (t.classList.contains("nom") && cat) cat.nom = t.value;
+    else if (t.classList.contains("couleur") && cat) {
+      cat.couleur = t.value; sec.style.setProperty("--c", t.value);
+      const h = $(".hex", sec); h.value = t.value; h.classList.remove("err");
+    } else if (t.classList.contains("hex") && cat) {
+      const c = analyserCouleur(t.value);
+      t.classList.toggle("err", !c);
+      if (!c) return;                                   // tant que le code est incomplet, on garde la couleur actuelle
+      cat.couleur = c; sec.style.setProperty("--c", c); $(".couleur", sec).value = c;
+    }
+    else if (ligne && t.classList.contains("txt")) ligne.texte = t.value;
+    else if (ligne && t.classList.contains("date")) ligne.date = t.value;
+    else if (ligne && t.classList.contains("jour")) ligne.jour = t.value;
+    else return;
+    majDerive();
+  });
+
+  $("#editeur").addEventListener("change", e => {
+    const t = e.target;
+    if (t.classList.contains("hex")) {
+      const { cat } = trouver(t);
+      if (!cat) return;
+      const c = analyserCouleur(t.value);
+      if (c) { cat.couleur = c; t.value = c; } else { t.value = cat.couleur; toast("Couleur non reconnue : la couleur précédente est conservée."); }
+      t.classList.remove("err");
+      majDerive();
+      return;
+    }
+    const { ligne, ligEl } = trouver(t);
+    if (!ligne) return;
+    if (t.classList.contains("mode")) {
+      ligne.mode = t.value;
+      if (ligne.mode === "yearly" && /^\d{4}-\d{2}-\d{2}$/.test(ligne.date)) { ligne.mois = +ligne.date.slice(5, 7); ligne.jour = +ligne.date.slice(8, 10); }
+      if (ligne.mode === "once" && !ligne.date) {
+        const j = Math.trunc(+ligne.jour), m = Math.trunc(+ligne.mois);       // reprend le jour et le mois saisis, dans l'année de l'aperçu
+        if (m >= 1 && m <= 12 && j >= 1 && dateExiste(etat.annee, m, j)) ligne.date = `${etat.annee}-${pad(m)}-${pad(j)}`;
+      }
+      ligEl.outerHTML = htmlLigne(ligne);
+      majDerive();
+      focaliser(ligne.id);
+    } else if (t.classList.contains("mois")) { ligne.mois = +t.value; majDerive(); }
+  });
+
+  $("#editeur").addEventListener("keydown", e => {
+    if (e.key !== "Enter" || !e.target.classList.contains("txt")) return;
+    e.preventDefault();
+    const { liste, ligne } = trouver(e.target);
+    if (!liste || !ligne) return;
+    const l = nouvelleLigne(ligne.mode);
+    liste.splice(liste.indexOf(ligne) + 1, 0, l);
+    rendreEditeur(); focaliser(l.id);
+  });
+
+  $("#btn-enregistrer").addEventListener("click", enregistrer);
+  $("#btn-copier").addEventListener("click", copier);
+  $("#btn-ouvrir").addEventListener("click", () => $("#fichier").click());
+  $("#fichier").addEventListener("change", e => { lireFichier(e.target.files[0]); e.target.value = ""; });
+  $("#btn-nouveau").addEventListener("click", () => {
+    const n = etat.categories.length + etat.plat.length;
+    if (n && !confirm("Effacer toutes les catégories et repartir de zéro ?")) return;
+    etat.categories = []; etat.plat = []; rendreEditeur();
+  });
+  $("#onglet-cal").addEventListener("click", () => { etat.vue = "cal"; majDerive(); });
+  $("#onglet-json").addEventListener("click", () => { etat.vue = "json"; majDerive(); });
+  $("#annee").addEventListener("input", e => {
+    const a = +e.target.value;
+    if (a >= 1900 && a <= 2200) { etat.annee = a; $("#corps").innerHTML = htmlApercu(); sauverBrouillon(); }
+  });
+
+  // glisser-déposer d'un fichier JSON
+  let profondeur = 0;
+  window.addEventListener("dragenter", e => { if (e.dataTransfer && Array.from(e.dataTransfer.types).includes("Files")) { profondeur++; document.body.classList.add("glisse"); } });
+  window.addEventListener("dragleave", () => { profondeur = Math.max(0, profondeur - 1); if (!profondeur) document.body.classList.remove("glisse"); });
+  window.addEventListener("dragover", e => e.preventDefault());
+  window.addEventListener("drop", e => {
+    e.preventDefault(); profondeur = 0; document.body.classList.remove("glisse");
+    if (e.dataTransfer.files.length) lireFichier(e.dataTransfer.files[0]);
+  });
+
+  chargerBrouillon();
+  rendreEditeur();
+
+  // pour les tests automatiques
+  window.__editeur = { importer, construire, valider, get etat() { return etat; }, cleLigne };
+})();
+</script>
+</body>
+</html>

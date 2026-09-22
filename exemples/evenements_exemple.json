@@ -1,0 +1,22 @@
+{
+  "Réunions": {
+    "couleur": "#1f7a8c",
+    "dates": {
+      "2027-03-21": "Réunion de section",
+      "2027-06-23": "Assemblée générale"
+    }
+  },
+  "Formations": {
+    "couleur": "#e07b00",
+    "dates": {
+      "2027-09-14": "Journée de formation"
+    }
+  },
+  "Dates commémoratives": {
+    "couleur": "#7b3fa0",
+    "dates": {
+      "03-08": "Journée internationale des droits des femmes",
+      "05-01": "Fête du Travail"
+    }
+  }
+}

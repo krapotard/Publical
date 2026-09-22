@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <name>Publical — Calendrier semestriel (FR)</name>
+  <id>com.publical.calendrier_semestriel</id>
+
+  <param name="tab" type="notebook">
+    <page name="general" gui-text="Général">
+      <param name="annee" type="int" min="1900" max="2200" gui-text="Année :">2027</param>
+      <param name="semestre" type="optiongroup" appearance="combo" gui-text="Face à générer :">
+        <option value="1">Recto : janvier – juin</option>
+        <option value="2">Verso : juillet – décembre</option>
+        <option value="both">Les deux faces</option>
+      </param>
+      <param name="disposition" type="optiongroup" appearance="combo" gui-text="Si les deux faces : les placer sur :">
+        <option value="pages">Deux pages (Inkscape 1.2 ou plus)</option>
+        <option value="calques">Deux calques superposés (verso masqué)</option>
+      </param>
+      <param name="format" type="optiongroup" appearance="combo" gui-text="Format du papier :">
+        <option value="A3">A3</option>
+        <option value="A4">A4</option>
+        <option value="A5">A5</option>
+        <option value="A6">A6</option>
+      </param>
+      <param name="orientation" type="optiongroup" appearance="combo" gui-text="Orientation :">
+        <option value="paysage">Paysage</option>
+        <option value="portrait">Portrait</option>
+      </param>
+      <label>Attention : le document est redimensionné au format choisi.</label>
+    </page>
+
+    <page name="contenu" gui-text="Contenu">
+      <param name="saints" type="bool" gui-text="Afficher les fêtes du jour (saints)">true</param>
+      <param name="feries" type="bool" gui-text="Afficher les jours fériés (et Pâques, Cendres)">true</param>
+      <param name="semaines" type="bool" gui-text="Afficher les numéros de semaine (le lundi)">false</param>
+      <param name="titre" type="string" gui-text="Texte en haut à droite :"></param>
+      <param name="pied" type="string" gui-text="Texte de pied de page :"></param>
+      <param name="evenements" type="path" mode="file" filetypes="json" gui-text="Fichier d'événements (JSON, facultatif) :"></param>
+      <param name="legende_evenements" type="bool" gui-text="Lister les catégories d'événements dans la légende">true</param>
+      <label>Fichier JSON par catégories : { "Ma catégorie": { "couleur": "#7b3fa0", "dates": { "2027-03-08": "Texte", "03-28": "Texte chaque année" } } }. Les catégories sont libres ; sans « couleur », une couleur est attribuée automatiquement. Le format simple { "2027-03-15": "AG" } reste accepté.</label>
+    </page>
+
+    <page name="couleurs" gui-text="Apparence">
+      <param name="couleur" type="color" appearance="colorbutton" gui-text="Couleur principale (titre, en-têtes de mois) :">523919359</param>
+      <param name="feries_meme_couleur" type="bool" gui-text="Dimanches et jours fériés : même couleur que la principale">true</param>
+      <param name="couleur_feries" type="color" appearance="colorbutton" gui-text="Couleur des dimanches et jours fériés :">3356503807</param>
+      <param name="fond_weekend" type="bool" gui-text="Griser le fond des samedis et dimanches">true</param>
+      <param name="couleur_weekend" type="color" appearance="colorbutton" gui-text="Fond des week-ends :">3974950143</param>
+      <param name="couleur_texte" type="color" appearance="colorbutton" gui-text="Couleur du texte :">286331391</param>
+      <param name="police" type="string" gui-text="Police prioritaire (facultatif) :"></param>
+      <param name="bordure" type="bool" gui-text="Tracer une bordure autour des colonnes de mois">true</param>
+      <label>Les colonnes de mois sont sur fond blanc et aucun fond de page n'est dessiné : la couleur de fond du document reste libre.</label>
+    </page>
+
+    <page name="vacances" gui-text="Vacances scolaires">
+      <param name="vacances" type="bool" gui-text="Afficher les vacances scolaires (barres de couleur à droite des mois)">true</param>
+      <param name="pont" type="bool" gui-text="Pont de l'Ascension : marquer du jeudi de l'Ascension au dimanche suivant">true</param>
+      <param name="position_barres" type="optiongroup" appearance="combo" gui-text="Position des barres :">
+        <option value="dates">À côté des dates</option>
+        <option value="droite">Contre le bord droit du mois</option>
+      </param>
+      <label appearance="header">Zones à afficher et couleurs</label>
+      <param name="zone_a" type="bool" gui-text="Zone A">true</param>
+      <param name="couleur_zone_a" type="color" appearance="colorbutton" gui-text="Couleur de la zone A :">3760200703</param>
+      <param name="zone_b" type="bool" gui-text="Zone B">true</param>
+      <param name="couleur_zone_b" type="color" appearance="colorbutton" gui-text="Couleur de la zone B :">525320191</param>
+      <param name="zone_c" type="bool" gui-text="Zone C">true</param>
+      <param name="couleur_zone_c" type="color" appearance="colorbutton" gui-text="Couleur de la zone C :">4140237055</param>
+      <label>Zone A : Besançon, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers. Zone B : Aix-Marseille, Amiens, Lille, Nancy-Metz, Nantes, Nice, Normandie, Orléans-Tours, Reims, Rennes, Strasbourg. Zone C : Créteil, Montpellier, Paris, Toulouse, Versailles.</label>
+    </page>
+
+    <page name="dates_vacances" gui-text="Dates des vacances">
+      <label>Format : JJ/MM/AAAA-JJ/MM/AAAA, du samedi de départ au lundi de reprise, comme dans le tableau officiel. Plusieurs périodes : les séparer par « ; ». Été : une seule date = jusqu'au 31 août. Dates 2026-2027 et 2027-2028 préremplies (Service Public, arrêtés du 22/10/2025 et du 21/07/2026).</label>
+      <label appearance="header">Identiques dans les trois zones</label>
+      <param name="vac_toussaint" type="string" gui-text="Toussaint :">17/10/2026-02/11/2026; 23/10/2027-08/11/2027</param>
+      <param name="vac_noel" type="string" gui-text="Noël :">19/12/2026-04/01/2027; 18/12/2027-03/01/2028</param>
+      <param name="vac_ete" type="string" gui-text="Été :">03/07/2027-02/09/2027; 04/07/2028</param>
+      <label appearance="header">Hiver</label>
+      <param name="vac_hiver_a" type="string" gui-text="Zone A :">13/02/2027-01/03/2027; 19/02/2028-06/03/2028</param>
+      <param name="vac_hiver_b" type="string" gui-text="Zone B :">20/02/2027-08/03/2027; 05/02/2028-21/02/2028</param>
+      <param name="vac_hiver_c" type="string" gui-text="Zone C :">06/02/2027-22/02/2027; 12/02/2028-28/02/2028</param>
+      <label appearance="header">Printemps</label>
+      <param name="vac_printemps_a" type="string" gui-text="Zone A :">10/04/2027-26/04/2027; 22/04/2028-09/05/2028</param>
+      <param name="vac_printemps_b" type="string" gui-text="Zone B :">17/04/2027-03/05/2027; 08/04/2028-24/04/2028</param>
+      <param name="vac_printemps_c" type="string" gui-text="Zone C :">03/04/2027-19/04/2027; 15/04/2028-02/05/2028</param>
+    </page>
+
+    <page name="ponts" gui-text="Ponts">
+      <label appearance="header">Jours travaillés</label>
+      <param name="jours_ouvres" type="string" gui-text="Jours travaillés (1 = lundi … 7 = dimanche) :">12345</param>
+      <label>Utilisés pour les ponts et pour le calcul des jours de paye.</label>
+      <label appearance="header">Ponts</label>
+      <param name="ponts_entreprise" type="bool" gui-text="Matérialiser les ponts">false</param>
+      <param name="couleur_ponts" type="color" appearance="colorbutton" gui-text="Couleur des ponts :">3068305919</param>
+      <label>Un pont est un jour travaillé isolé entre un jour férié et un jour non travaillé : le lundi avant un férié du mardi, le vendredi après un férié du jeudi. Il est repéré automatiquement d'après les jours fériés et les jours travaillés.</label>
+    </page>
+
+    <page name="paye" gui-text="Paye">
+      <param name="paye" type="bool" gui-text="Matérialiser les jours de paye (pictogramme bourse €)">false</param>
+      <param name="paye_mode" type="optiongroup" appearance="combo" gui-text="Règle de paye :">
+        <option value="fin">N-ième dernier jour ouvré du mois</option>
+        <option value="fixe">Date fixe du mois</option>
+      </param>
+      <param name="paye_n" type="int" min="1" max="31" gui-text="Règle « dernier jour ouvré » : N (1 = dernier jour ouvré) :">5</param>
+      <param name="paye_jour" type="int" min="1" max="31" gui-text="Règle « date fixe » : jour du mois :">25</param>
+      <param name="paye_decalage" type="optiongroup" appearance="combo" gui-text="Date fixe non ouvrée : payer le jour ouvré :">
+        <option value="avant">précédent</option>
+        <option value="apres">suivant</option>
+        <option value="non">(pas de décalage)</option>
+      </param>
+      <param name="paye_feries_non_ouvres" type="bool" gui-text="Les jours fériés ne sont pas des jours ouvrés">true</param>
+      <param name="couleur_paye" type="color" appearance="colorbutton" gui-text="Couleur du pictogramme :">461323263</param>
+      <label>Exemple : N = 5 donne le 5e dernier jour ouvré du mois, le dernier jour du mois étant compté (« 5 jours ouvrés avant la fin du mois »). Avec du lundi au vendredi ouvrés, hors fériés.</label>
+    </page>
+  </param>
+
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu name="Render"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command location="inx" interpreter="python">publical_inkscape.py</command>
+  </script>
+</inkscape-extension>
